@@ -1,0 +1,43 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CMDチャット</title>
+</head>
+<body>
+  <input type="text" id="msg_input" style="width:200px;" />
+  <button onclick="publishMessage();">send</button>
+  <div id="msg"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+    // 1.イベントとコールバックの定義
+    var socketio = io.connect('http://localhost:2019');
+
+    socketio.on("connected", function(name) {});
+    socketio.on("publish", function (data) { addMessage(data.value); });
+    socketio.on("disconnect", function () {});
+
+    // 2.イベントに絡ませる関数の定義
+    function start(name) {
+      socketio.emit("connected", name);
+    }
+
+    function publishMessage() {
+      var textInput = document.getElementById('msg_input');
+      socketio.emit("publish", {name:myName, value: textInput.value});
+      textInput.value = '';
+    }
+
+    function addMessage (msg) {
+      var domMeg = document.createElement('div');
+      domMeg.innerHTML = new Date().toLocaleTimeString() + ' ' + msg;
+      msgArea.appendChild(domMeg);
+    }
+
+    // 3.開始処理
+    var msgArea = document.getElementById("msg");
+    var myName = Math.floor(Math.random()*100) + "さん";
+    addMessage( myName + "として入室しました");
+    start(myName);
+  </script>
+</body>
+</html>
